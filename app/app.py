@@ -1,4 +1,8 @@
-# app/app.py
+"""Aplicación Flask principal para la calculadora.
+
+Define las rutas y maneja la lógica de interacción con el usuario a través del formulario web.
+"""
+
 from flask import Flask, render_template, request
 from .calculadora import sumar, restar, multiplicar, dividir
 
@@ -7,6 +11,10 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    """Maneja la ruta principal del sitio. 
+    Si es GET, muestra el formulario. 
+    Si es POST, toma los valores del formulario, realiza la operación seleccionada y devuelve el resultado.
+    """
     resultado = None
     if request.method == "POST":
         try:
@@ -33,4 +41,4 @@ def index():
 
 
 if __name__ == "__main__":  # pragma: no cover
-    app.run(debug=True, port=5000, host="0.0.0.0")  # Quita debug=True para producción
+    app.run(debug=True, port=5000, host="0.0.0.0")  
