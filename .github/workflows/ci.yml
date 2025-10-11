@@ -41,7 +41,7 @@ jobs:
 
       - name: Run Acceptance Tests
         env:
-           APP_BASE_URL: http://localhost:8000
+          APP_BASE_URL: http://localhost:8000
         run: |
           nohup gunicorn --workers=2 --bind=127.0.0.1:8000 app.app:app > gunicorn.log 2>&1 &
           echo "Esperando a que Gunicorn arranque..."
@@ -55,7 +55,6 @@ jobs:
           done
           pytest test/test_acceptance_app.py --html=acceptance_report.html || (cat gunicorn.log && exit 1)
 
-
       - name: Upload Test Reports Artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -64,6 +63,9 @@ jobs:
           path: |
             htmlcov/
             report.html
+            acceptance_report.html
+            pylint-report.txt
+            flake8-report.txt
         
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
@@ -72,7 +74,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El secreto que creaste
     
       # --- Pasos de Docker ---
-
       - name: Set up QEMU
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/setup-qemu-action@v3
@@ -85,18 +86,18 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
   
       - name: Build and push Docker image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
-            context: .
-            file: ./Dockerfile
-            push: true
-            tags: |
-              ${{ secrets.DOCKERHUB_USERNAME }}/segundo-entregable-cicd:${{ github.sha }}
-              ${{ secrets.DOCKERHUB_USERNAME }}/segundo-entregable-cicd:latest
-            cache-from: type=gha
-            cache-to: type=gha,mode=max
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/segundo-entregable-cicd:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/segundo-entregable-cicd:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
