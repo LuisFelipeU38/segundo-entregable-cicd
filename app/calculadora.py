@@ -1,4 +1,5 @@
-"""Módulo con operaciones básicas de una calculadora: sumar, restar, multiplicar y dividir."""
+"""Módulo con operaciones básicas de una
+calculadora: sumar, restar, multiplicar y dividir."""
 
 
 def sumar(a, b):

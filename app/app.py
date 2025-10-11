@@ -1,6 +1,7 @@
 """Aplicación Flask principal para la calculadora.
 
-Define las rutas y maneja la lógica de interacción con el usuario a través del formulario web.
+Define las rutas y maneja la lógica de interacción
+con el usuario a través del formulario web.
 """
 
 from flask import Flask, render_template, request
@@ -12,8 +13,9 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Maneja la ruta principal del sitio.
-    Si es GET, muestra el formulario.
-    Si es POST, toma los valores del formulario, realiza la operación seleccionada y devuelve el resultado.
+    Si GET, muestra el formulario.
+    Si POST, toma los valores del formulario,
+    operación seleccionada y devuelve esultado.
     """
     resultado = None
     if request.method == "POST":
