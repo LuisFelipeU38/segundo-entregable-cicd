@@ -37,26 +37,15 @@ jobs:
 
       - name: Run Unit Tests with pytest and Coverage
         run: |
-          pytest --maxfail=1 --disable-warnings -q \
-            --cov=app --cov-branch --cov-report=term-missing \
-            --cov-report=xml:coverage.xml --cov-report=html:htmlcov \
-            --ignore=tests/test_acceptance_app.py
+          pytest --ignore=tests/test_acceptance_app.py  # Genera un informe XML para SonarCloud
 
       - name: Run Acceptance Tests
         env:
-          APP_BASE_URL: http://localhost:8000
+           APP_BASE_URL: http://localhost:8000
         run: |
-          nohup gunicorn --workers=2 --bind=127.0.0.1:8000 app.app:app > gunicorn.log 2>&1 &
-          echo "Esperando a que Gunicorn arranque..."
-          for i in {1..10}; do
-            if curl -s http://127.0.0.1:8000 > /dev/null; then
-              echo "Gunicorn listo"
-              break
-            fi
-            echo "Esperando ($i/10)..."
-            sleep 3
-          done
-          pytest test/test_acceptance_app.py --html=acceptance_report.html || (cat gunicorn.log && exit 1)
+          gunicorn --workers=2 --bind=0.0.0.0:8000 app.app:app &
+          sleep 10
+          pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml --html=acceptance_report.html # Genera un informe XML con otro nombre, para no sobre-escribir el anterior de  las pruebas unitarias
 
       - name: Upload Test Reports Artifacts
         uses: actions/upload-artifact@v4
@@ -66,9 +55,6 @@ jobs:
           path: |
             htmlcov/
             report.html
-            acceptance_report.html
-            pylint-report.txt
-            flake8-report.txt
         
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
@@ -77,6 +63,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El secreto que creaste
     
       # --- Pasos de Docker ---
+
       - name: Set up QEMU
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/setup-qemu-action@v3
@@ -91,7 +78,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-  
+
       - name: Build and push Docker image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
@@ -100,7 +87,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/segundo-entregable-cicd:${{ github.sha }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/segundo-entregable-cicd:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
