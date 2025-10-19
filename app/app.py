@@ -10,6 +10,7 @@ import os
 
 app = Flask(__name__)
 
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Maneja la ruta principal del sitio.
@@ -41,9 +42,11 @@ def index():
 
     return render_template("index.html", resultado=resultado)
 
+
 @app.route("/health")
 def health():
     return "OK", 200
+
 
 if __name__ == "__main__":  # pragma: no cover
     app_port = int(os.environ.get("PORT", 5000))
