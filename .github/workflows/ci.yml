@@ -45,16 +45,27 @@ jobs:
            APP_BASE_URL: http://localhost:8000
         run: |
           gunicorn --workers=2 --bind=0.0.0.0:8000 app.app:app &
-          echo "Esperando a que la aplicación esté lista..."
-          for i in {1..15}; do
-            if curl -s http://localhost:8000/health > /dev/null; then
-              echo "✅ Aplicación lista en http://localhost:8000"
+          sleep 10
+          pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml --html=acceptance_report.html # Genera un informe XML con otro nombre, para no sobre-escribir el anterior de  las pruebas unitarias
+
+      - name: Run Smoke Tests (Selenium)
+        env:
+          APP_BASE_URL: http://localhost:8000
+        run: |
+          echo "🚀 Levantando la app para el smoke test..."
+          gunicorn --workers=2 --bind=0.0.0.0:8000 app.app:app &
+          echo "⏳ Esperando que la app esté lista..."
+          for i in {1..10}; do
+            if curl -s http://localhost:8000 > /dev/null; then
+              echo "✅ Aplicación disponible en http://localhost:8000"
               break
             fi
-              echo "⏳ Esperando que la app levante... ($i/15)"
-              sleep 2
+            echo "Intento $i/10: esperando..."
+            sleep 2
           done
-          pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml --html=acceptance_report.html
+          echo "▶️ Ejecutando prueba Selenium..."
+          pytest tests/test_smoke_app.py --html=smoke_report.html
+          echo "🧹 Cerrando proceso gunicorn..."
           pkill gunicorn || true
 
       - name: Upload Test Reports Artifacts
