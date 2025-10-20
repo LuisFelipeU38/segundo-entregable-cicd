@@ -4,9 +4,9 @@ Define las rutas y maneja la lógica de interacción
 con el usuario a través del formulario web.
 """
 
+import os
 from flask import Flask, render_template, request
 from .calculadora import sumar, restar, multiplicar, dividir
-import os
 
 app = Flask(__name__)
 
@@ -45,6 +45,8 @@ def index():
 
 @app.route("/health")
 def health():
+    """Endpoint de verificación de estado
+    del servicio (health check)."""
     return "OK", 200
 
 
