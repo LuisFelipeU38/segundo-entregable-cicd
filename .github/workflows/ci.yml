@@ -45,8 +45,17 @@ jobs:
            APP_BASE_URL: http://localhost:8000
         run: |
           gunicorn --workers=2 --bind=0.0.0.0:8000 app.app:app &
-          sleep 10
-          pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml --html=acceptance_report.html # Genera un informe XML con otro nombre, para no sobre-escribir el anterior de  las pruebas unitarias
+          echo "Esperando a que la aplicación esté lista..."
+          for i in {1..15}; do
+            if curl -s http://localhost:8000/health > /dev/null; then
+              echo "✅ Aplicación lista en http://localhost:8000"
+              break
+            fi
+              echo "⏳ Esperando que la app levante... ($i/15)"
+              sleep 2
+          done
+          pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml --html=acceptance_report.html
+          pkill gunicorn || true
 
       - name: Upload Test Reports Artifacts
         uses: actions/upload-artifact@v4
