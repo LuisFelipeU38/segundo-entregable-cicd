@@ -1,6 +1,8 @@
 """Módulo con operaciones básicas de una
 calculadora: sumar, restar, multiplicar y dividir."""
+
 import math
+
 
 def sumar(a, b):
     """Devuelve la suma de a y b."""
@@ -25,9 +27,11 @@ def dividir(a, b):
         raise ZeroDivisionError("No se puede dividir por cero")
     return a / b
 
+
 def potencia(a, b):
     """Eleva a a la potencia b"""
-    return a ** b
+    return a**b
+
 
 def raiz_cuadrada(a):
     """Devuelve la raíz cuadrada de a"""
