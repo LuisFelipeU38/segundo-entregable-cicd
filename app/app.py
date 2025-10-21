@@ -6,7 +6,7 @@ con el usuario a través del formulario web.
 
 import os
 from flask import Flask, render_template, request
-from .calculadora import sumar, restar, multiplicar, dividir
+from .calculadora import sumar, restar, multiplicar, dividir, potencia, raiz_cuadrada
 
 app = Flask(__name__)
 
@@ -33,6 +33,10 @@ def index():
                 resultado = multiplicar(num1, num2)
             elif operacion == "dividir":
                 resultado = dividir(num1, num2)
+            elif operacion == "potencia":
+                resultado = potencia(num1, num2)
+            elif operacion == "raiz_cuadrada":
+                resultado = raiz_cuadrada(num1)
             else:
                 resultado = "Operación no válida"
         except ValueError:
