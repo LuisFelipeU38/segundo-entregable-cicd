@@ -15,30 +15,38 @@ app = Flask(__name__)
 def index():
     """Maneja la ruta principal del sitio.
     Si GET, muestra el formulario.
-    Si POST, toma los valores del formulario,
-    operación seleccionada y devuelve el resultado.
+    Si POST, procesa la operación seleccionada.
     """
     resultado = None
     if request.method == "POST":
-        try:
-            num1 = float(request.form["num1"])
-            num2 = float(request.form["num2"])
-            operacion = request.form["operacion"]
+        operacion = request.form.get("operacion")
+        num1 = request.form.get("num1", "")
+        num2 = request.form.get("num2", "")
 
-            if operacion == "sumar":
-                resultado = sumar(num1, num2)
-            elif operacion == "restar":
-                resultado = restar(num1, num2)
-            elif operacion == "multiplicar":
-                resultado = multiplicar(num1, num2)
-            elif operacion == "dividir":
-                resultado = dividir(num1, num2)
-            elif operacion == "potencia":
-                resultado = potencia(num1, num2)
-            elif operacion == "raiz_cuadrada":
+        try:
+            # Raíz cuadrada → solo usa num1
+            if operacion == "raiz_cuadrada":
+                num1 = float(num1)
                 resultado = raiz_cuadrada(num1)
+
+            # Operaciones normales → requieren ambos
             else:
-                resultado = "Operación no válida"
+                num1 = float(num1)
+                num2 = float(num2)
+
+                if operacion == "sumar":
+                    resultado = sumar(num1, num2)
+                elif operacion == "restar":
+                    resultado = restar(num1, num2)
+                elif operacion == "multiplicar":
+                    resultado = multiplicar(num1, num2)
+                elif operacion == "dividir":
+                    resultado = dividir(num1, num2)
+                elif operacion == "potencia":
+                    resultado = potencia(num1, num2)
+                else:
+                    resultado = "Operación no válida"
+
         except ValueError:
             resultado = "Error: Introduce números válidos"
         except ZeroDivisionError:
